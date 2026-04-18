@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>TikTok OAuth — AI Tries Vines</title>
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<style>
+  :root { --green:#00B488; --ink:#0B0E0C; --paper:#FAF8F2; --mono:"JetBrains Mono",ui-monospace,monospace; }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--paper);color:var(--ink);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
+  .card{max-width:720px;width:100%;background:#fff;border:2px solid var(--ink);border-radius:14px;padding:32px}
+  h1{margin:0 0 8px;font-size:22px}
+  .sub{color:#555;margin-bottom:24px;font-size:14px}
+  .label{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:#666;margin-bottom:6px}
+  pre{background:var(--ink);color:var(--green);padding:18px;border-radius:10px;font-family:var(--mono);font-size:14px;word-break:break-all;white-space:pre-wrap;overflow-wrap:anywhere;margin:0 0 20px}
+  button{background:var(--green);color:#fff;border:0;padding:12px 22px;border-radius:8px;font-weight:600;font-size:15px;cursor:pointer}
+  button:hover{background:#00916d}
+  .err{background:#c3324a;color:#fff;padding:14px;border-radius:8px;margin-bottom:16px}
+  .row{display:flex;gap:16px;align-items:center}
+  details{margin-top:16px;font-size:13px;color:#555}
+  summary{cursor:pointer;user-select:none}
+  code{font-family:var(--mono);background:#eee;padding:2px 6px;border-radius:4px}
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>TikTok auth code</h1>
+  <p class="sub">Copy the code below and paste it into your local terminal when prompted.</p>
+  <div id="error" class="err" style="display:none"></div>
+  <div class="label">CODE</div>
+  <pre id="code">loading…</pre>
+  <div class="label">STATE</div>
+  <pre id="state"></pre>
+  <div class="row">
+    <button id="copy">Copy code</button>
+    <span id="copied" style="color:var(--green);font-weight:600;display:none">Copied!</span>
+  </div>
+  <details>
+    <summary>What is this?</summary>
+    <p>This is the OAuth redirect page for the <b>AI Tries Vines</b> TikTok developer app. TikTok sends an authorization code here after you approve the connection. You copy it into the local Python script which exchanges it for an access token. The token is stored locally on your computer — this page never sees or stores it.</p>
+  </details>
+</div>
+<script>
+  const qs = new URLSearchParams(location.search);
+  const code = qs.get("code");
+  const state = qs.get("state");
+  const err = qs.get("error");
+  const errDesc = qs.get("error_description");
+  const codeEl = document.getElementById("code");
+  const stateEl = document.getElementById("state");
+  const errEl = document.getElementById("error");
+
+  if (err) {
+    errEl.style.display = "block";
+    errEl.textContent = `TikTok returned an error: ${err}${errDesc ? " — " + errDesc : ""}`;
+    codeEl.textContent = "(no code)";
+    stateEl.textContent = "(n/a)";
+  } else if (!code) {
+    errEl.style.display = "block";
+    errEl.textContent = "No `code` parameter in URL. Did you navigate here directly? Start the flow from your local terminal.";
+    codeEl.textContent = "(no code)";
+    stateEl.textContent = "(n/a)";
+  } else {
+    codeEl.textContent = code;
+    stateEl.textContent = state || "(no state)";
+  }
+
+  document.getElementById("copy").addEventListener("click", () => {
+    if (!code) return;
+    navigator.clipboard.writeText(code).then(() => {
+      const c = document.getElementById("copied");
+      c.style.display = "inline";
+      setTimeout(() => c.style.display = "none", 1500);
+    });
+  });
+</script>
+</body>
+</html>
